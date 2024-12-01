@@ -52,8 +52,9 @@ jobs:
 
         if [ "$missing_libs" = "true" ]; then
           echo "New libraries added to requirements.txt. Please review and push changes."
+          echo "::warning file=requirements.txt::Review the added dependencies."
           exit 1
         fi
-
+        
     - name: Run Script
       run: python leo.py
