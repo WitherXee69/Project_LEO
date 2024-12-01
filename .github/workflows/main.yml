@@ -1,0 +1,43 @@
+name: Check Libraries and Run Script
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check_and_run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set Up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'  # Replace with the Python version your project needs
+
+    - name: Install Dependencies
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
+
+    - name: Check for Missing Libraries
+      run: |
+        # Extract imports from leo.py
+        grep "^import " leo.py > imports.txt || true
+        grep "^from " leo.py >> imports.txt || true
+        # Check for missing libraries
+        while IFS= read -r line; do
+          lib=$(echo "$line" | awk '{print $2}' | cut -d. -f1)
+          if ! pip show "$lib" > /dev/null 2>&1; then
+            echo "Missing library detected: $lib"
+            exit 1
+          fi
+        done < imports.txt
+
+    - name: Run Script
+      run: python leo.py
