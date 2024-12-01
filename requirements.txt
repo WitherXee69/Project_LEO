@@ -1,10 +1,4 @@
 datetime
-getpass
-json
-os
-shutil
-time
-winreg
 maskpass
 pycrypto
 tqdm
