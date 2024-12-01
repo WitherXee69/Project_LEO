@@ -1,4 +1,4 @@
-name: Check Libraries and Run Script
+name: Check Libraries, Update Requirements, and Run Script
 
 on:
   push:
@@ -19,25 +19,41 @@ jobs:
       with:
         python-version: '3.x'  # Replace with the Python version your project needs
 
-    - name: Install Dependencies
+    - name: Install Existing Dependencies
       run: |
         if [ -f requirements.txt ]; then
           pip install -r requirements.txt
+        else
+          touch requirements.txt
         fi
 
-    - name: Check for Missing Libraries
+    - name: Check and Update Missing Libraries
       run: |
         # Extract imports from leo.py
         grep "^import " leo.py > imports.txt || true
         grep "^from " leo.py >> imports.txt || true
+
+        # Initialize a flag for missing libraries
+        missing_libs="false"
+
         # Check for missing libraries
         while IFS= read -r line; do
           lib=$(echo "$line" | awk '{print $2}' | cut -d. -f1)
           if ! pip show "$lib" > /dev/null 2>&1; then
             echo "Missing library detected: $lib"
-            exit 1
+            # Append the missing library to requirements.txt if not already present
+            if ! grep -q "^$lib" requirements.txt; then
+              echo "$lib" >> requirements.txt
+              echo "$lib added to requirements.txt"
+              missing_libs="true"
+            fi
           fi
         done < imports.txt
+
+        if [ "$missing_libs" = "true" ]; then
+          echo "New libraries added to requirements.txt. Please review and push changes."
+          exit 1
+        fi
 
     - name: Run Script
       run: python leo.py
