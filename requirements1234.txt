@@ -1,5 +1,5 @@
 datetime
 maskpass
-pycrypto
+pycryptodome
 tqdm
 cryptography
