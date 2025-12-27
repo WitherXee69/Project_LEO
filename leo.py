@@ -5,6 +5,8 @@ import json
 import os.path
 import shutil
 import time
+from glob import glob
+import psutil
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
 import winreg as reg
