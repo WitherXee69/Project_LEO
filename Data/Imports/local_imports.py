@@ -11,3 +11,4 @@ from Data.Protocols.Sfuzzer.sfuzzer import *
 from Data.Protocols.SiteCoreX.sitecorex import *
 from Data.Protocols.InfoSentry.infosentry import *
 from Data.Protocols.ÆtherMap.Æthermap import *
+from Data.Visuals.visuals import *

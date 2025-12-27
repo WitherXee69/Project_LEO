@@ -1,19 +1,11 @@
 import base64
-import datetime
 import getpass
 import json
 import os.path
 import shutil
-import time
-from glob import glob
-import psutil
-from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES
 import winreg as reg
+from glob import glob
 import maskpass
-from colorama import Fore, Style
-from tqdm import tqdm
-from cryptography.fernet import Fernet
 
 from Data.Imports.local_imports import *
 
@@ -21,7 +13,8 @@ username = r"Data\UserData\user.king"
 password = r"Data\UserData\pass.king"
 bkdir = r"Data\UserData\Backup"
 
-KEY_PATH = r"SOFTWARE\LEO\KEY"
+#KEY_PATH = r"SOFTWARE\LEO\KEY"
+#REG_PATH = r"SOFTWARE\LEO\USERDATA"
 
 log_loc = "Data\\Logs"
 logfile = open(f"{log_loc}\\log-{datetime.now().strftime('%Y_%m_%d~%H_%M_%S')}", "w")
@@ -29,27 +22,7 @@ logfile = open(f"{log_loc}\\log-{datetime.now().strftime('%Y_%m_%d~%H_%M_%S')}",
 hostname = socket.gethostname()
 ip = socket.gethostbyname(hostname)
 
-REG_PATH = r"SOFTWARE\LEO\USERDATA"
-
 login_times = 0
-
-
-def typewriter_effect(sentence, type_delay):
-    for char in sentence:
-        sys.stdout.write(char)
-        sys.stdout.flush()
-        time.sleep(type_delay)
-
-
-def topic():
-    print(Fore.LIGHTYELLOW_EX + """
-██╗     ███████╗ ██████╗     ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗
-██║     ██╔════╝██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║
-██║     █████╗  ██║   ██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║
-██║     ██╔══╝  ██║   ██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║
-███████╗███████╗╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
-╚══════╝╚══════╝ ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
-""")
 
 
 def logs(indata):
@@ -88,17 +61,7 @@ def login():
             while True:
                 mainTerminal(user)
     except (KeyboardInterrupt, EOFError):
-        for i in tqdm(range(100),
-                      desc=Style.BRIGHT + Fore.LIGHTRED_EX + "#>Shutting Down all systems >>>>",
-                      ascii=False, ncols=100):
-            time.sleep(0.1)
-        time.sleep(1)
-        print("$>Good Bye!")
-        logs(f"{datetime.now().strftime('%H_%M_%S')}>>>{username} shutted down the system")
-        logfile.close()
-        time.sleep(2)
-        os.system('cls||clear')
-        sys.exit()
+        shut_down_VIS(username)
 
 
 def check_key_exists(path):
@@ -200,17 +163,7 @@ def cmdinner(user):
 -----------------------------------------------------------------------------------------------""")
         query = input(Style.RESET_ALL + f"\n<{user}@{ip}><{os.getcwd()}>>>")
     except (KeyboardInterrupt, EOFError):
-        for i in tqdm(range(100),
-                      desc=Style.BRIGHT + Fore.LIGHTRED_EX + "#>Shutting Down all systems >>>>",
-                      ascii=False, ncols=100):
-            time.sleep(0.1)
-        time.sleep(1)
-        print("$>Good Bye!")
-        logs(f"{datetime.now().strftime('%H_%M_%S')}>>>{user} shut down the system")
-        logfile.close()
-        time.sleep(2)
-        os.system('cls||clear')
-        sys.exit()
+        shut_down_VIS(username)
     return query
 
 
@@ -226,14 +179,7 @@ def mainTerminal(user):
         if query == "2":
             os.system('cls||clear')
             logs(f"{datetime.now().strftime('%H_%M_%S')}>>>{user} entered to menu")
-            print(Fore.LIGHTYELLOW_EX + """
-██╗     ███████╗ ██████╗     ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗
-██║     ██╔════╝██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║
-██║     █████╗  ██║   ██║       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║
-██║     ██╔══╝  ██║   ██║       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║
-███████╗███████╗╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
-╚══════╝╚══════╝ ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
-""")
+            topic()
             print(Fore.LIGHTYELLOW_EX + """
 -----------------------------------------------------------------------------------------------""")
             print(Style.RESET_ALL + """
@@ -690,17 +636,7 @@ def mainTerminal(user):
 
         # Shutdown
         elif query == "3":
-            for i in tqdm(range(100),
-                          desc=Style.BRIGHT + Fore.LIGHTRED_EX + "#>Shutting Down all systems >>>>",
-                          ascii=False, ncols=100):
-                time.sleep(0.1)
-            time.sleep(1)
-            print("$>Good Bye!")
-            logs(f"{datetime.now().strftime('%H_%M_%S')}>>>{user} shutted down the system")
-            logfile.close()
-            time.sleep(2)
-            os.system('cls||clear')
-            sys.exit()
+            shut_down_VIS(username)
 
         # Restart
         elif query == "4":
